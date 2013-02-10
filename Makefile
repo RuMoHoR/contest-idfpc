@@ -4,6 +4,7 @@ all:	$(TARGET)
 
 SRCDIR := src
 OBJDIR := obj
+LOGDIR := logs
 
 TARGET_BIN      = $(TARGET).bin
 TARGET_HEX      = $(TARGET).hex
@@ -62,3 +63,9 @@ clean:
 
 tst:	$(TARGET)
 	./$(TARGET) data/pic.bmp
+
+$(LOGDIR):
+	@mkdir -p $(LOGDIR)
+
+bmp:	$(TARGET) | $(LOGDIR)
+	./$(TARGET) data/pic.bmp $(LOGDIR)/res.bmp

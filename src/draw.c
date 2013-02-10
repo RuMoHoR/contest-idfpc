@@ -1,40 +1,53 @@
 #include <stdlib.h>
-//#include <math.h>
 #include "contest.h"
-
-#if 0
-static inline
-int
-abs(
-	const int x )
-{
-	int	ret;
-
-	if ( x < 0 ) {
-		ret = -x;
-	} else {
-		ret = x;
-	} /* <0 ? */
-
-	return ret;
-}
-#endif
 
 static
 void
-draw_plot_pixel(
-	const int xx,
-	const int yy )
+draw_pixel(
+	const struct contest_data_t * const bmp,
+	const unsigned int xx,
+	const unsigned int yy,
+	const signed char color )
 {
+	struct contest_operand_t	*pixel;
+	unsigned int	pos;
+
+	if ( !bmp ) return;
+
+	if (
+		( xx >= bmp->width ) ||
+		( yy >= bmp->height )
+	) { /* bad coords*/
+//		return NULL;
+	} else { /* good coords */
+/*		printf(
+			"Pixel: [%3u,%3u]\n",
+			xx, yy );
+*/
+		pos = ( bmp->height - yy - 1 ) * bmp->width + xx;
+//		pixel = &( bmp->data[ pos ] );
+		pixel = &( bmp->result[ pos ] );
+
+		pixel->A = color;
+		pixel->B = color;
+		pixel->C = color;
+
+		pixel = &( bmp->result[ pos ] );
+		pixel->A = 0xFF;
+		pixel->B = 0xFF;
+		pixel->C = 0xFF;
+
+	} /* coord ok? */
 }
 
-#define	DRAW_SCALE	12
 void
-draw_plot_line(
+draw_line(
+	const struct contest_data_t * const bmp,
 	const int xxs,
 	const int yys,
 	const int xxe,
-	const int yye )
+	const int yye,
+	const signed char color )
 {
 	int	xx0, xx1, yy0, yy1;
 	int	x, y, dx, dy, sx, sy, err, e2;
@@ -50,10 +63,18 @@ draw_plot_line(
 	sy = ( yy0 < yy1 ) ? 1 : -1;
 	err = dx + dy;		/* error value e_xy */
 
+/*	printf(
+		"Line: [%3u,%3u]-[%3u,%3u]\n",
+		xx0, yy0, xx1, yy1 );
+
+	printf(
+		"Line: dx=%d sx=%d dy=%d sy=%d\n",
+		dx, sx, dy, sy );
+*/
 	x = xx0;
 	y = yy0;
 	do {  /* loop */
-		draw_plot_pixel( x, y );
+		draw_pixel( bmp, x, y, color );
 		e2 = 2*err;
 		if ( e2 >= dy ) {
 			err += dy;
