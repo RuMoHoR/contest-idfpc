@@ -68,4 +68,4 @@ $(LOGDIR):
 	@mkdir -p $(LOGDIR)
 
 bmp:	$(TARGET) | $(LOGDIR)
-	./$(TARGET) data/pic.bmp $(LOGDIR)/res.bmp
+	./$(TARGET) data/pic.bmp $(LOGDIR)

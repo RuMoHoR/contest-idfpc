@@ -8,7 +8,6 @@ struct contest_operand_t {
 	signed char A;
 	signed char B;
 	signed char C;
-//	signed char X;
 };
 
 #define	BMPREAD_HDR_SIZE	54
@@ -22,6 +21,7 @@ struct contest_data_t {
 	unsigned int	size_res;
 	struct contest_operand_t	*data;
 	struct contest_operand_t	*result;
+	struct contest_operand_t	*result_bw;
 };
 
 void
@@ -34,11 +34,20 @@ bmpread_read(
 
 void
 bmpread_save(
-	FILE * const fres,
-	const struct contest_data_t * const bmp );
+	const struct contest_data_t * const bmp,
+	const char * const fdir,
+	const char * const fname );
+
+void
+bmpread_alloc_bw(
+	struct contest_data_t * const bmp );
 
 void
 bmpread_free(
+	struct contest_data_t * const bmp );
+
+void
+bmpread_move_res_to_bw(
 	struct contest_data_t * const bmp );
 
 struct contest_operand_t*
@@ -49,7 +58,8 @@ bmpread_get_opcode(
 
 void
 contest_parse(
-	const struct contest_data_t * const bmp );
+	struct contest_data_t * const bmp,
+	const char * const fdir );
 
 void
 draw_line(
@@ -59,6 +69,5 @@ draw_line(
 	const int xxe,
 	const int yye,
 	const signed char color );
-
 
 #endif

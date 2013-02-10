@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <linux/limits.h>
 
 #include "contest.h"
 
@@ -53,79 +54,116 @@ bmpread_get_opcode(
 	} /* coord ok? */
 }
 
+void
+bmpread_alloc_bw(
+	struct contest_data_t * const bmp )
+{
+	if ( bmp->result_bw ) {
+		free( bmp->result_bw );
+		bmp->result_bw = NULL;
+	} /* res alloc ok? */
+
+	bmp->result_bw = malloc( bmp->size_res );
+
+	if ( bmp->result_bw ) {
+		memset( bmp->result_bw, 0, bmp->size_res );
+	} /* res alloc ok? */
+}
+
+void
+bmpread_move_res_to_bw(
+	struct contest_data_t * const bmp )
+{
+	if ( ( bmp->result ) && ( bmp->result_bw ) ) {
+		memcpy( bmp->result_bw, bmp->result, bmp->size_res );
+	} /* may copy? */
+}
+
 struct contest_data_t*
 bmpread_read(
 	FILE * const fbmp )
 {
-	struct contest_data_t	*data;
+	struct contest_data_t	*bmp;
 	int	r;
 
-	data = (struct contest_data_t *)malloc( sizeof( struct contest_data_t ) );
+	bmp = (struct contest_data_t *)malloc( sizeof( struct contest_data_t ) );
 
-	if ( !data ) {
+	if ( !bmp ) {
 		contest_error( "Alloc!" );
 	} else { /* malloc ok*/
-		r = fread( data->hdr, 1, BMPREAD_HDR_SIZE, fbmp );
-	printf( "rd = %d\n", r );
+		r = fread( bmp->hdr, 1, BMPREAD_HDR_SIZE, fbmp );
+		printf( "rd = %d\n", r );
 
-		data->width = 400;
-		data->height = 200;
-		data->size_src =
-			data->width *
-			data->height *
+		bmp->width = 400;
+		bmp->height = 200;
+		bmp->size_src =
+			bmp->width *
+			bmp->height *
 			sizeof( struct contest_operand_t );
-		data->size_res =
-			data->width * DRAW_SCALE *
-			data->height * DRAW_SCALE *
+		bmp->size_res =
+			bmp->width * DRAW_SCALE *
+			bmp->height * DRAW_SCALE *
 			sizeof( struct contest_operand_t );
 
-		if ( !( data->size_src ) ) {
+		if ( !( bmp->size_src ) ) {
 			contest_error( "Limit!" );
-			data = NULL;
+			bmp = NULL;
 		} else { /* have data */
-			data->data = malloc( data->size_src );
-			data->result = malloc( data->size_res );
-			memset( data->result, 0, data->size_res );
-			if ( !( data->data ) ) {
+			bmp->data = malloc( bmp->size_src );
+			if ( !( bmp->data ) ) {
 				contest_error( "Data alloc!" );
-				free( data );
-				data = NULL;
+				free( bmp );
+				bmp = NULL;
 			} else { /* data malloc ok*/
-				if ( !( data->result ) ) {
-					contest_error( "Result alloc!" );
-					free( data->data );
-					data->data = NULL;
-					free( data );
-					data = NULL;
-				} else { /* res malloc ok*/
-					r = fread( data->data, 1, data->size_src, fbmp );
-	printf( "rd = %d\n", r );
-				} /* res alloc ok? */
+				r = fread( bmp->data, 1, bmp->size_src, fbmp );
+				printf( "rd = %d\n", r );
+
+				bmp->result = malloc( bmp->size_res );
+				if ( bmp->result ) {
+					memset( bmp->result, 0, bmp->size_res );
+				}
+				bmpread_alloc_bw( bmp );
 			} /* data alloc ok? */
 		} /* have data? */
 	} /* malloc ok? */
 
-	return data;
+	return bmp;
 }
 
 void
 bmpread_save(
-	FILE * const fres,
-	const struct contest_data_t * const bmp )
+	const struct contest_data_t * const bmp,
+	const char * const fdir,
+	const char * const fname )
 {
+	char	fpath[ PATH_MAX + 1 ];
+	FILE	*fres;
 	int	r;
+
+	snprintf(
+		fpath,
+		PATH_MAX,
+		"./%s/%s.bmp",
+		fdir,
+		fname );
+
 
 	if ( !bmp ) {
 	} else { /* malloc ok*/
-		r = fwrite( bmp->hdr, 1, BMPREAD_HDR_SIZE, fres );
-	printf( "wr = %d\n", r );
+		fres = fopen( fpath, "w" );
+		if ( !fres ) {
+			printf( "Can't open '%s', no result saved!\n", fpath );
+		} else { /* open ok */
+			r = fwrite( bmp->hdr, 1, BMPREAD_HDR_SIZE, fres );
+		printf( "wr = %d\n", r );
 
-		if ( !( bmp->result ) ) {
-			contest_error( "No result!" );
-		} else { /* res malloc ok*/
-			r = fwrite( bmp->result, 1, bmp->size_res, fres );
-	printf( "wr = %d\n", r );
-		} /* have res? */
+			if ( !( bmp->result_bw ) ) {
+				contest_error( "No result!" );
+			} else { /* res malloc ok*/
+				r = fwrite( bmp->result_bw, 1, bmp->size_res, fres );
+		printf( "wr = %d\n", r );
+			} /* have res? */
+		} /* res open ok?*/
 	} /* malloc ok? */
 }
 
@@ -144,6 +182,10 @@ bmpread_free(
 			free( bmp->result );
 			bmp->result = NULL;
 		} /* have res? */
+		if ( bmp->result_bw ) {
+			free( bmp->result_bw );
+			bmp->result_bw = NULL;
+		} /* have res_bw? */
 		free( bmp );
 	} /* have data? */
 }
