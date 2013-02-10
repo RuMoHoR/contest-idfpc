@@ -17,8 +17,6 @@ main(
 	FILE	*fbmp;
 	struct contest_data_t	*bmp;
 
-	printf("Usage: %d\n", argc );
-
 	if ( argc < 2 ) {
 		printf("Usage: %s pic [dir]\n", argv[ 0 ] );
 		return 1;

@@ -20,8 +20,9 @@ struct contest_data_t {
 	unsigned int	size_src;
 	unsigned int	size_res;
 	struct contest_operand_t	*data;
-	struct contest_operand_t	*result;
+	struct contest_operand_t	*result_color;
 	struct contest_operand_t	*result_bw;
+	struct contest_operand_t	*result_used;
 };
 
 void
@@ -47,7 +48,11 @@ bmpread_free(
 	struct contest_data_t * const bmp );
 
 void
-bmpread_move_res_to_bw(
+bmpread_fill_bw_from_color(
+	struct contest_data_t * const bmp );
+
+void
+bmpread_fill_bw_from_used(
 	struct contest_data_t * const bmp );
 
 struct contest_operand_t*
@@ -64,6 +69,7 @@ contest_parse(
 void
 draw_line(
 	const struct contest_data_t * const bmp,
+	struct contest_operand_t * const pixels,
 	const int xxs,
 	const int yys,
 	const int xxe,

@@ -54,28 +54,68 @@ bmpread_get_opcode(
 	} /* coord ok? */
 }
 
+static
+void
+bmpread_free_operands(
+	struct contest_operand_t *  *  const data )
+{
+	if ( *data ) {
+		free( *data );
+		*data = NULL;
+	} /* have data? */
+}
+
+void
+bmpread_free(
+	struct contest_data_t * const bmp )
+{
+	if ( !bmp ) {
+		contest_error( "Free NULL!" );
+	} else { /* malloc ok*/
+		bmpread_free_operands( &( bmp->data ) );
+		bmpread_free_operands( &( bmp->result_color ) );
+		bmpread_free_operands( &( bmp->result_bw ) );
+		bmpread_free_operands( &( bmp->result_used ) );
+		free( bmp );
+	} /* have data? */
+}
+
+static
+void
+bmpread_alloc(
+	struct contest_operand_t *  *  const data,
+	const size_t size )
+{
+	*data = malloc( size );
+
+	if ( *data ) {
+		memset( *data, 0, size );
+	} /* alloc ok? */
+}
+
 void
 bmpread_alloc_bw(
 	struct contest_data_t * const bmp )
 {
-	if ( bmp->result_bw ) {
-		free( bmp->result_bw );
-		bmp->result_bw = NULL;
-	} /* res alloc ok? */
-
-	bmp->result_bw = malloc( bmp->size_res );
-
-	if ( bmp->result_bw ) {
-		memset( bmp->result_bw, 0, bmp->size_res );
-	} /* res alloc ok? */
+	bmpread_free_operands( &( bmp->result_bw ) );
+	bmpread_alloc( &( bmp->result_bw ), bmp->size_res );
 }
 
 void
-bmpread_move_res_to_bw(
+bmpread_fill_bw_from_color(
 	struct contest_data_t * const bmp )
 {
-	if ( ( bmp->result ) && ( bmp->result_bw ) ) {
-		memcpy( bmp->result_bw, bmp->result, bmp->size_res );
+	if ( ( bmp->result_color ) && ( bmp->result_bw ) ) {
+		memcpy( bmp->result_bw, bmp->result_color, bmp->size_res );
+	} /* may copy? */
+}
+
+void
+bmpread_fill_bw_from_used(
+	struct contest_data_t * const bmp )
+{
+	if ( ( bmp->result_used ) && ( bmp->result_bw ) ) {
+		memcpy( bmp->result_bw, bmp->result_used, bmp->size_res );
 	} /* may copy? */
 }
 
@@ -92,7 +132,7 @@ bmpread_read(
 		contest_error( "Alloc!" );
 	} else { /* malloc ok*/
 		r = fread( bmp->hdr, 1, BMPREAD_HDR_SIZE, fbmp );
-		printf( "rd = %d\n", r );
+//		printf( "rd = %d\n", r );
 
 		bmp->width = 400;
 		bmp->height = 200;
@@ -116,13 +156,11 @@ bmpread_read(
 				bmp = NULL;
 			} else { /* data malloc ok*/
 				r = fread( bmp->data, 1, bmp->size_src, fbmp );
-				printf( "rd = %d\n", r );
+//				printf( "rd = %d\n", r );
 
-				bmp->result = malloc( bmp->size_res );
-				if ( bmp->result ) {
-					memset( bmp->result, 0, bmp->size_res );
-				}
-				bmpread_alloc_bw( bmp );
+				bmpread_alloc( &( bmp->result_color ), bmp->size_res );
+				bmpread_alloc( &( bmp->result_bw ), bmp->size_res );
+				bmpread_alloc( &( bmp->result_used ), bmp->size_res );
 			} /* data alloc ok? */
 		} /* have data? */
 	} /* malloc ok? */
@@ -154,38 +192,16 @@ bmpread_save(
 		if ( !fres ) {
 			printf( "Can't open '%s', no result saved!\n", fpath );
 		} else { /* open ok */
+			printf( "Saving '%s'.\n", fpath );
 			r = fwrite( bmp->hdr, 1, BMPREAD_HDR_SIZE, fres );
-		printf( "wr = %d\n", r );
+//			printf( "wr = %d\n", r );
 
 			if ( !( bmp->result_bw ) ) {
 				contest_error( "No result!" );
 			} else { /* res malloc ok*/
 				r = fwrite( bmp->result_bw, 1, bmp->size_res, fres );
-		printf( "wr = %d\n", r );
+//				printf( "wr = %d\n", r );
 			} /* have res? */
 		} /* res open ok?*/
 	} /* malloc ok? */
-}
-
-void
-bmpread_free(
-	struct contest_data_t * const bmp )
-{
-	if ( !bmp ) {
-		contest_error( "Free NULL!" );
-	} else { /* malloc ok*/
-		if ( bmp->data ) {
-			free( bmp->data );
-			bmp->data = NULL;
-		} /* have data? */
-		if ( bmp->result ) {
-			free( bmp->result );
-			bmp->result = NULL;
-		} /* have res? */
-		if ( bmp->result_bw ) {
-			free( bmp->result_bw );
-			bmp->result_bw = NULL;
-		} /* have res_bw? */
-		free( bmp );
-	} /* have data? */
 }

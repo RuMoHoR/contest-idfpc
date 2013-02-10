@@ -27,14 +27,29 @@ contest_parse_step(
 		state->vy ^= op->B;
 		state->clr ^= op->C;
 
+		draw_line(
+			bmp,
+			bmp->result_used,
+			state->x, state->y,
+			state->x, state->y,
+			0xFF );
+
 		if ( !state->clr ) {
 		} else { /* draw */
 			draw_line(
 				bmp,
+				bmp->result_color,
 				state->x, state->y,
 				state->x + state->vx,
 				state->y + state->vy,
 				state->clr );
+			draw_line(
+				bmp,
+				bmp->result_bw,
+				state->x, state->y,
+				state->x + state->vx,
+				state->y + state->vy,
+				0xFF );
 		} /* color ok? */
 
 		state->x = state->x + state->vx;
@@ -86,6 +101,9 @@ contest_parse(
 	contest_parse_page( bmp, fdir, "02_svg", 50, 22, 24, 34 );
 	contest_parse_page( bmp, fdir, "03_vvvm", 41, 19, 37, 25 );
 
-	bmpread_move_res_to_bw( bmp );
+	bmpread_fill_bw_from_used( bmp );
+	bmpread_save( bmp, fdir, "98_used" );
+
+	bmpread_fill_bw_from_color( bmp );
 	bmpread_save( bmp, fdir, "99_result" );
 }
