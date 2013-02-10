@@ -5,25 +5,36 @@
 #include <inttypes.h>
 
 struct contest_operand_t {
-	unsigned char A;
-	unsigned char B;
-	unsigned char C;
-	unsigned char X;
+	signed char A;
+	signed char B;
+	signed char C;
+//	signed char X;
 };
 
 struct contest_data_t {
-	int	width;
-	int	height;
+	unsigned int	width;
+	unsigned int	height;
+	unsigned int	limit;
 	struct contest_operand_t	*data;
 };
 
+void
+contest_error(
+	const char * const msg );
+
 struct contest_data_t*
 bmpread_read(
-	FILE *fbmp );
+	FILE * const fbmp );
+
+struct contest_operand_t*
+bmpread_get_opcode(
+	const struct contest_data_t * const bmp,
+	const unsigned int x,
+	const unsigned int y );
 
 void
 contest_parse(
-	struct contest_data_t *data );
+	const struct contest_data_t * const data );
 
 void
 draw_plot_line(

@@ -38,9 +38,10 @@ LDFLAGS	= \
 .c.o:
 	gcc $(CFLAGS) -c $< -o $@
 
-draw.o: draw.c
-bmpread.o: bmpread.c
-main.o:	main.c
+$(OBJDIR)/bmpread.o:	$(SRCDIR)/bmpread.c $(SRCDIR)/contest.h
+$(OBJDIR)/contest.o:	$(SRCDIR)/contest.c $(SRCDIR)/contest.h
+$(OBJDIR)/draw.o:	$(SRCDIR)/draw.c $(SRCDIR)/contest.h
+$(OBJDIR)/main.o:	$(SRCDIR)/main.c $(SRCDIR)/contest.h
 
 $(OBJ): | $(OBJDIR)
 $(OBJDIR):
