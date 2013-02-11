@@ -8,7 +8,8 @@ draw_pixel(
 	struct contest_operand_t * const pixels,
 	const unsigned int xx,
 	const unsigned int yy,
-	const signed char color )
+	const signed char color,
+	const signed char color2 )
 {
 	struct contest_operand_t	*pixel;
 	unsigned int	pos;
@@ -25,8 +26,8 @@ draw_pixel(
 
 		pixel = &( pixels[ pos ] );
 		pixel->A = color;
-		pixel->B = color;
-		pixel->C = color;
+		pixel->B = color2;
+		pixel->C = color2;
 	} /* have result? */
 }
 
@@ -52,27 +53,29 @@ draw_line(
 	yy1 = yye * DRAW_SCALE;
 
 	if ( ( xx0 == xx1 ) && ( yy0 == yy1 ) ) {
-		draw_pixel( bmp, pixels, xx0, yy0, color );
 	} else {
-	dx = abs( xx1 - xx0 );
-	sx = ( xx0 < xx1 ) ? 1 : -1;
-	dy = -abs( yy1 - yy0 );
-	sy = ( yy0 < yy1 ) ? 1 : -1;
-	err = dx + dy;		/* error value e_xy */
+		dx = abs( xx1 - xx0 );
+		sx = ( xx0 < xx1 ) ? 1 : -1;
+		dy = -abs( yy1 - yy0 );
+		sy = ( yy0 < yy1 ) ? 1 : -1;
+		err = dx + dy;		/* error value e_xy */
 
-	x = xx0;
-	y = yy0;
-	do {  /* loop */
-		draw_pixel( bmp, pixels, x, y, color );
-		e2 = 2*err;
-		if ( e2 >= dy ) {
-			err += dy;
-			x += sx;
-		} /* e_xy + e_x > 0 */
-		if ( e2 <= dx ) {
-			err += dx;
-			y += sy;
-		} /* e_xy+e_y < 0 */
-	} while ( ( x != xx1 ) || ( y != yy1 ) );
+		x = xx0;
+		y = yy0;
+		do {  /* loop */
+			draw_pixel( bmp, pixels, x, y, color, 0x70 );
+			e2 = 2*err;
+			if ( e2 >= dy ) {
+				err += dy;
+				x += sx;
+			} /* e_xy + e_x > 0 */
+			if ( e2 <= dx ) {
+				err += dx;
+				y += sy;
+			} /* e_xy+e_y < 0 */
+		} while ( ( x != xx1 ) || ( y != yy1 ) );
 	} /* one pixel? */
+
+	draw_pixel( bmp, pixels, xx0, yy0, color, 0x90 );
+	draw_pixel( bmp, pixels, xx1, yy1, color, 0xC0 );
 }

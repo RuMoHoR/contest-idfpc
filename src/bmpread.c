@@ -89,7 +89,7 @@ bmpread_alloc(
 	*data = malloc( size );
 
 	if ( *data ) {
-		memset( *data, 0, size );
+		memset( *data, 0x00, size );
 	} /* alloc ok? */
 }
 
