@@ -136,13 +136,15 @@ bmpread_read(
 
 		bmp->width = 400;
 		bmp->height = 200;
-		bmp->size_src =
+		bmp->count =
 			bmp->width *
-			bmp->height *
+			bmp->height;
+		bmp->size_src =
+			bmp->count *
 			sizeof( struct contest_operand_t );
 		bmp->size_res =
-			bmp->width * DRAW_SCALE *
-			bmp->height * DRAW_SCALE *
+			bmp->count *
+			DRAW_SCALE * DRAW_SCALE *
 			sizeof( struct contest_operand_t );
 
 		if ( !( bmp->size_src ) ) {

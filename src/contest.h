@@ -17,6 +17,7 @@ struct contest_data_t {
 	unsigned char	hdr[ BMPREAD_HDR_SIZE ];
 	unsigned int	width;
 	unsigned int	height;
+	unsigned int	count;
 	unsigned int	size_src;
 	unsigned int	size_res;
 	struct contest_operand_t	*data;
