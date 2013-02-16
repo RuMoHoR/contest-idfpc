@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <linux/limits.h>
 
 #include "contest.h"
 
@@ -8,7 +9,64 @@ struct contest_state_t {
 	signed char	vx;
 	signed char	vy;
 	signed char	clr;
+	int	dump;
 };
+
+static
+void
+contest_parse_dump(
+	const char * const label,
+	const struct contest_state_t * const state,
+	const struct contest_operand_t * const op )
+{
+	if ( state->dump ) {
+
+		printf( "Dump: [%8s] State: x=%3u y=%3u vx=%4d vy=%4d clr=%3u",
+			label,
+			state->x, state->y,
+			state->vx, state->vy,
+			state->clr );
+		if ( op ) {
+			printf(
+				" Op: A=%4d B=%4d C=%4d",
+				op->A, op->B, op->C );
+		} /* have op? */
+		printf( "\n" );
+	} /* do dump? */
+}
+
+static
+void
+contest_parse_dump_start(
+	struct contest_state_t * const state )
+{
+	if (
+//		( ( state->x == 180 ) && ( state->y == 56 ) ) ||
+//		( ( state->x == 210 ) && ( state->y == 56 ) ) ||
+//		( ( state->x == 120 ) && ( state->y == 86 ) ) ||
+//		( ( state->x == 114 ) && ( state->y == 80 ) ) ||
+//		( ( state->x == 20 ) && ( state->y == 87 ) ) ||
+//		( ( state->x == 70 ) && ( state->y == 117 ) ) ||
+
+//		( ( state->x == 174 ) && ( state->y == 101 ) ) ||
+//		( ( state->x == 84 ) && ( state->y == 117 ) ) ||
+		( ( state->x == 24 ) && ( state->y == 71 ) ) ||
+		( ( state->x == 24 ) && ( state->y == 117 ) ) ||
+		0
+	) {
+		state->dump = 1;
+		contest_parse_dump( "start", state, NULL );
+	}
+}
+
+static
+void
+contest_parse_dump_stop(
+	struct contest_state_t * const state )
+{
+	contest_parse_dump( "start", state, NULL );
+	state->dump = 0;
+}
 
 static
 int
@@ -21,8 +79,12 @@ contest_parse_step(
 	op = bmpread_get_opcode( bmp, state->x, state->y );
 
 	if ( !op ) {
+		contest_parse_dump_stop( state );
 		return 0;
 	} else { /* got opcode */
+
+		contest_parse_dump( "step", state, op );
+
 		state->vx ^= op->A;
 		state->vy ^= op->B;
 		state->clr ^= op->C;
@@ -59,7 +121,7 @@ contest_parse_step(
 }
 
 static
-void
+int
 contest_parse_page(
 	struct contest_data_t * const bmp,
 	const char * const fdir,
@@ -73,8 +135,9 @@ contest_parse_page(
 	int	r;
 	int n;
 
-	if ( !bmp ) return;
+	if ( !bmp ) return 0;
 
+	printf( "Making \"%s\"\n", fname );
 	bmpread_alloc_bw( bmp );
 
 	state.x = x;
@@ -82,14 +145,23 @@ contest_parse_page(
 	state.vx = vx;
 	state.vy = vy;
 	state.clr = 0;
+	state.dump = 0;
 
-	n = 400000;
+	n = 0;
 	do {
+		contest_parse_dump_start( &state );
 		r = contest_parse_step( bmp, &state );
-		n--;
-	} while ( r && n );
+		if ( !state.clr ) {
+			contest_parse_dump_stop( &state );
+		} /* stop dump? */
+		n++;
+	} while ( r && ( n < 100000 ) );
 
-	bmpread_save( bmp, fdir, fname );
+	if ( n > 20 ) {
+		bmpread_save( bmp, fdir, fname );
+	}
+
+	return n;
 }
 
 void
