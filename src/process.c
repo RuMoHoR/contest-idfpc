@@ -69,13 +69,14 @@ produce_data_init( void )
 	struct contest_producer_t	*prod;
 	int	i;
 
-	srand( time( NULL ) );
+//	srand( time( NULL ) );
 
 	prod = malloc( PRODUCER_SIZE * sizeof( struct contest_producer_t ) );
 	if ( prod ) {
 		for ( i = 0; i < PRODUCER_SIZE; i++ ) {
-			prod[ i ].value = 0;
+//			prod[ i ].value = 0;
 			prod[ i ].next = rand() % 256;
+			prod[ i ].next = 0;
 			prod[ i ].A = 0;
 			prod[ i ].B = 0;
 			prod[ i ].parent_num = 0;
@@ -97,6 +98,7 @@ produce_data_set_value(
 	const int valb )
 {
 	if ( pid < PRODUCER_SIZE ) {
+		printf( "VAL: set pid=%u A=%d B=%d\n", pid, vala, valb );
 		prod[ pid ].A = vala;
 		prod[ pid ].B = valb;
 	} else {
@@ -354,6 +356,8 @@ produce_copy(
 
 	for ( i = 0; i < PRODUCER_SIZE; i++ ) {
 		prod[ i ].value = prod[ i ].next;
+		if ( prod[ i ].next < 0 ) prod[ i ].value = 0;
+		if ( prod[ i ].next > 255 ) prod[ i ].value = 255;
 	} /* all items */
 }
 
@@ -397,6 +401,7 @@ produce_image_fill(
 		if ( color < mmin ) mmin = color;
 	} /* all items*/
 
+	if ( mmax == mmin ) mmax++;
 	for ( i = 0; i < PRODUCER_SIZE; i++ ) {
 		color = prod[ i ].next;
 		fix = ( ( color - mmin ) * 255 ) / ( mmax - mmin );
@@ -428,7 +433,7 @@ contest_produce(
 			produce_image_fill( prod, bmp );
 			bmpread_save( bmp, fdir, "50_initial", bmp->result_color );
 
-			for ( step = 1; step <= 7; step++ ) {
+			for ( step = 1; step <= 9; step++ ) {
 				produce_copy( prod );
 				produce_calculate( prod );
 				produce_image_fill( prod, bmp );
