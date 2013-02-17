@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include <linux/limits.h>
 
 #include "contest.h"
@@ -67,6 +68,8 @@ produce_data_init( void )
 {
 	struct contest_producer_t	*prod;
 	int	i;
+
+	srand( time( NULL ) );
 
 	prod = malloc( PRODUCER_SIZE * sizeof( struct contest_producer_t ) );
 	if ( prod ) {
@@ -177,7 +180,7 @@ produce_data_read_line_value1(
 	int	ret;
 
 	ret = 0;
-	n = sscanf( line, "  Value <- %d * %c / 64 +%d\n", &vala, &c1, &valb );
+	n = sscanf( line, "  Value <- %d * %c / 64 +%d.\n", &vala, &c1, &valb );
 	if ( n == 3 ) {
 //		printf( "VAL: %d [%d][%d]\n", n, vala, valb );
 		produce_data_set_value( prod, pid, vala, valb );
@@ -199,10 +202,32 @@ produce_data_read_line_value2(
 	int	ret;
 
 	ret = 0;
-	n = sscanf( line, "  Value <- %d * %c / 64 %d\n", &vala, &c1, &valb );
+	n = sscanf( line, "  Value <- %d * %c / 64 %d.\n", &vala, &c1, &valb );
 	if ( n == 3 ) {
 //		printf( "VAL: %d [%d][%d]\n", n, vala, valb );
 		produce_data_set_value( prod, pid, vala, valb );
+		ret = 1;
+	} /* pid? */
+	return ret;
+}
+
+static
+int
+produce_data_read_line_value3(
+	struct contest_producer_t * const prod,
+	const char * const line,
+	const unsigned int pid )
+{
+	int	n;
+	int	vala;
+	char	c1;
+	int	ret;
+
+	ret = 0;
+	n = sscanf( line, "  Value <- %d * %c / 64.\n", &vala, &c1 );
+	if ( n == 2 ) {
+//		printf( "VAL: %d [%d]\n", n, vala );
+		produce_data_set_value( prod, pid, vala, 0 );
 		ret = 1;
 	} /* pid? */
 	return ret;
@@ -228,6 +253,11 @@ produce_data_read_line(
 	} /* pid?*/
 
 	r = produce_data_read_line_send( prod, line, *pid );
+	if ( r ) {
+		ret = 1;
+	} /* pid?*/
+
+	r = produce_data_read_line_value3( prod, line, *pid );
 	if ( r ) {
 		ret = 1;
 	} /* pid?*/
@@ -332,10 +362,19 @@ void
 produce_calculate(
 	struct contest_producer_t * const prod )
 {
+	int	idx1, idx2, idx3, idx4;
+	int	mid;
 	int	i;
 
 	for ( i = 0; i < PRODUCER_SIZE; i++ ) {
-		prod[ i ].next = prod[  i ^ 1 ].value * 133 +55 +i*7;
+		idx1 = prod[ i ].parent[ 0 ];
+		idx2 = prod[ i ].parent[ 1 ];
+		idx3 = prod[ i ].parent[ 2 ];
+		idx4 = prod[ i ].parent[ 3 ];
+
+		mid = ( prod[ idx1 ].value + prod[ idx2 ].value + prod[ idx3 ].value + prod[ idx4 ].value + 2 ) / 4;
+
+		prod[ i ].next = mid * prod[ i ].A / 64 + prod[ i ].B;
 	} /* all items */
 }
 
@@ -347,13 +386,25 @@ produce_image_fill(
 {
 	int	i;
 	int	color;
+	int	mmin, mmax;
+	int	fix;
+
+	mmin = prod[ 0 ].next;
+	mmax = prod[ 0 ].next;
+	for ( i = 1; i < PRODUCER_SIZE; i++ ) {
+		color = prod[ i ].next;
+		if ( color > mmax ) mmax = color;
+		if ( color < mmin ) mmin = color;
+	} /* all items*/
 
 	for ( i = 0; i < PRODUCER_SIZE; i++ ) {
 		color = prod[ i ].next;
-		bmp->result_color[ i ].A = color;
-		bmp->result_color[ i ].B = color;
-		bmp->result_color[ i ].C = color;
+		fix = ( ( color - mmin ) * 255 ) / ( mmax - mmin );
+		bmp->result_color[ i ].A = fix;
+		bmp->result_color[ i ].B = fix;
+		bmp->result_color[ i ].C = fix;
 	} /* all items */
+	printf(" MM: %d %d\n", mmin,mmax);
 }
 
 void
