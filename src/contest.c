@@ -40,6 +40,6 @@ contest(
 	contest_parse_page( bmp, 106, 15, 18, 0 );
 	bmpread_save( bmp, fdir, "12_cartesian", bmp->result_bw );
 */
-//	contest_vvvm( bmp );
-	contest_produce( fdir );
+	contest_vvvm( bmp );
+//	contest_produce( fdir );
 }

@@ -357,7 +357,7 @@ contest_vvvm(
 {
 	struct vvvm_t	vm;
 
-	vm.ip = 32;
+	vm.ip = 36;
 	vm.mem = VVVM_SIZE * sizeof( union vvvm_opcode_t );
 	vm.data = malloc( vm.mem );
 	if ( vm.data ) {
