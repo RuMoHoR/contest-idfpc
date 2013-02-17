@@ -85,22 +85,59 @@ produce_data_init( void )
 	return prod;
 }
 
+static
+void
+produce_data_set_value(
+	struct contest_producer_t * const prod,
+	const unsigned int pid,
+	const int vala,
+	const int valb )
+{
+	if ( pid < PRODUCER_SIZE ) {
+		prod[ pid ].A = vala;
+		prod[ pid ].B = valb;
+	} else {
+		printf( "VAL: bad index pid=%u\n", pid );
+	} /* valid index? */
+}
+
+static
+void
+produce_data_set_send(
+	struct contest_producer_t * const prod,
+	const unsigned int pid,
+	const unsigned int send )
+{
+	if ( ( pid < PRODUCER_SIZE ) && ( send < PRODUCER_SIZE ) ) {
+		if ( prod[ send ].parent_num >= 4 ) {
+			printf( "SEND: many parents pid=%u send=%u\n", pid, send );
+		} else {
+			prod[ send ].parent[ prod[ send ].parent_num ] = pid;
+			prod[ send ].parent_num++;
+		} /* numpar ok? */
+	} else {
+		printf( "SEND: bad index pid=%u send=%u\n", pid, send );
+	} /* valid index? */
+}
+
 #define	PRODUCER_LINE_SIZE	160
 
 static
 int
 produce_data_read_line_pid(
 	struct contest_producer_t * const prod,
-	const char * const line )
+	const char * const line,
+	unsigned int * const spid )
 {
 	int	n;
-	int	pid;
+	unsigned int	pid;
 	int	ret;
 
 	ret = 0;
-	n = sscanf( line, "Process %d\n", &pid );
+	n = sscanf( line, "Process %u\n", &pid );
 	if ( n > 0 ) {
-		printf( "PID: %d [%d]\n", n, pid );
+//		printf( "PID: %d [%u]\n", n, pid );
+		*spid = pid;
 		ret = 1;
 	} /* pid? */
 	return ret;
@@ -110,16 +147,18 @@ static
 int
 produce_data_read_line_send(
 	struct contest_producer_t * const prod,
-	const char * const line )
+	const char * const line,
+	const unsigned int pid )
 {
 	int	n;
-	int	pid;
+	unsigned int	send;
 	int	ret;
 
 	ret = 0;
-	n = sscanf( line, "  send Value to process %d,\n", &pid );
+	n = sscanf( line, "  send Value to process %d,\n", &send );
 	if ( n > 0 ) {
-		printf( "SEND: %d [%d]\n", n, pid );
+//		printf( "SEND: %d [%d]\n", n, send );
+		produce_data_set_send( prod, pid, send );
 		ret = 1;
 	} /* pid? */
 	return ret;
@@ -129,7 +168,8 @@ static
 int
 produce_data_read_line_value1(
 	struct contest_producer_t * const prod,
-	const char * const line )
+	const char * const line,
+	const unsigned int pid )
 {
 	int	n;
 	int	vala, valb;
@@ -139,7 +179,8 @@ produce_data_read_line_value1(
 	ret = 0;
 	n = sscanf( line, "  Value <- %d * %c / 64 +%d\n", &vala, &c1, &valb );
 	if ( n == 3 ) {
-		printf( "VAL: %d [%d][%d]\n", n, vala, valb );
+//		printf( "VAL: %d [%d][%d]\n", n, vala, valb );
+		produce_data_set_value( prod, pid, vala, valb );
 		ret = 1;
 	} /* pid? */
 	return ret;
@@ -149,7 +190,8 @@ static
 int
 produce_data_read_line_value2(
 	struct contest_producer_t * const prod,
-	const char * const line )
+	const char * const line,
+	const unsigned int pid )
 {
 	int	n;
 	int	vala, valb;
@@ -159,7 +201,8 @@ produce_data_read_line_value2(
 	ret = 0;
 	n = sscanf( line, "  Value <- %d * %c / 64 %d\n", &vala, &c1, &valb );
 	if ( n == 3 ) {
-		printf( "VAL: %d [%d][%d]\n", n, vala, valb );
+//		printf( "VAL: %d [%d][%d]\n", n, vala, valb );
+		produce_data_set_value( prod, pid, vala, valb );
 		ret = 1;
 	} /* pid? */
 	return ret;
@@ -169,7 +212,8 @@ static
 int
 produce_data_read_line(
 	struct contest_producer_t * const prod,
-	const char * const line )
+	const char * const line,
+	unsigned int * const pid )
 {
 	int	ret;
 	int	r;
@@ -178,22 +222,22 @@ produce_data_read_line(
 
 //	printf( "Line: [%s]\n", line );
 
-	r = produce_data_read_line_pid( prod, line );
+	r = produce_data_read_line_pid( prod, line, pid );
 	if ( r ) {
 		ret = 1;
 	} /* pid?*/
 
-	r = produce_data_read_line_send( prod, line );
+	r = produce_data_read_line_send( prod, line, *pid );
 	if ( r ) {
 		ret = 1;
 	} /* pid?*/
 
-	r = produce_data_read_line_value1( prod, line );
+	r = produce_data_read_line_value1( prod, line, *pid );
 	if ( r ) {
 		ret = 1;
 	} /* pid?*/
 
-	r = produce_data_read_line_value2( prod, line );
+	r = produce_data_read_line_value2( prod, line, *pid );
 	if ( r ) {
 		ret = 1;
 	} /* pid?*/
@@ -219,6 +263,7 @@ produce_data_read(
 	char	*r;
 	int	p;
 	int	ret;
+	unsigned int	pid;
 
 	ret = 0;
 	falgo = fopen( fname, "r" );
@@ -227,13 +272,14 @@ produce_data_read(
 		ret = 0;
 	} else { /* open ok */
 		lines = 0;
+		pid = -1;
 		do {
 			r = fgets( line, PRODUCER_LINE_SIZE, falgo );
 			if ( r ) {
-				p = produce_data_read_line( prod, line );
+				p = produce_data_read_line( prod, line, &pid );
 				lines++;
 			} /* have line? */
-		} while ( r && p && ( lines < 28 ) );
+		} while ( r && p && ( lines < 2000000000 ) );
 		ret = 1;
 	} /* open oK? */
 
