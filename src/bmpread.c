@@ -80,7 +80,6 @@ bmpread_free(
 	} /* have data? */
 }
 
-static
 void
 bmpread_alloc(
 	struct contest_operand_t *  *  const data,
@@ -173,7 +172,7 @@ bmpread_save(
 			r = fwrite( bmp->hdr, 1, BMPREAD_HDR_SIZE, fres );
 //			printf( "wr = %d\n", r );
 
-			if ( !( bmp->result_bw ) ) {
+			if ( !result ) {
 				contest_error( "No result!" );
 			} else { /* res malloc ok*/
 				r = fwrite( result, 1, bmp->size, fres );

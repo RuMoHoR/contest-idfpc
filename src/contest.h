@@ -50,6 +50,11 @@ bmpread_save(
 	const struct contest_operand_t *result );
 
 void
+bmpread_alloc(
+	struct contest_operand_t *  *  const data,
+	const size_t size );
+
+void
 bmpread_alloc_bw(
 	struct contest_data_t * const bmp );
 
@@ -122,5 +127,9 @@ draw_line(
 void
 contest_vvvm(
 	const struct contest_data_t * const bmp );
+
+void
+contest_produce(
+	const char * const fdir );
 
 #endif
