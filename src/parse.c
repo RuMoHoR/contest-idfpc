@@ -87,7 +87,7 @@ contest_parse_page(
 
 	n = 0;
 	do {
-		contest_dump_start( &state );
+//		contest_dump_start( &state );
 		r = contest_parse_step( bmp, &state );
 		if ( !state.clr ) {
 			contest_dump_stop( &state );
@@ -95,10 +95,11 @@ contest_parse_page(
 		n++;
 	} while ( r && ( n < 100000 ) );
 
-	state.dump = 1;
-	contest_dump( "final", &state, NULL );
+	if ( n > 50 ) {
+		printf( "Steps: %d\n", n );
+		state.dump = 1;
+		contest_dump( "final", &state, NULL );
 
-	if ( n > 20 ) {
 		bmpread_save( bmp, fdir, fname );
 	}
 

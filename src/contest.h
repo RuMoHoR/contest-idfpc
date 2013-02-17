@@ -35,7 +35,6 @@ struct contest_state_t {
 	int	dump;
 };
 
-
 void
 contest_error(
 	const char * const msg );

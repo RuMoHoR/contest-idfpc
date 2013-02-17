@@ -24,5 +24,7 @@ contest(
 
 //	bmpread_fill_bw_from_color( bmp );
 //	bmpread_save( bmp, fdir, "99_result" );
-//	contest_search( bmp, fdir );
+
+	contest_search_forward( bmp, fdir );
+	// make bmp|grep final | sort | uniq -c
 }
