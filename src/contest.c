@@ -28,14 +28,15 @@ contest(
 	// make bmp|grep final | sort | uniq -c
 */
 
-
-//	contest_search_backward( bmp, 134, 158, -6, 0, 57 );
+	contest_search_backward( bmp, 134, 158, -6, 0, 57 );
 	contest_search_backward( bmp, 80, 176, 0, 6, 113 );
-//	contest_search_backward( bmp, 333, 12, 0, 8, 91 );
-//	contest_search_backward( bmp, 123, 183, 0, -6, 120 );
-//	contest_search_backward( bmp, 270, 17, -6, 0, 71 );
+	contest_search_backward( bmp, 333, 12, 0, 8, 91 );
+	contest_search_backward( bmp, 123, 183, 0, -6, 120 );
+	contest_search_backward( bmp, 270, 17, -6, 0, 71 );
 
-//	contest_parse_page( bmp, 106, 15, 18, 0 );
-//	bmpread_save( bmp, fdir, "11_cartesian", bmp->result_bw );
+	contest_parse_page( bmp, 97, 35, 36, 43 );
+	bmpread_save( bmp, fdir, "11_cmds", bmp->result_bw );
 
+	contest_parse_page( bmp, 106, 15, 18, 0 );
+	bmpread_save( bmp, fdir, "12_cartesian", bmp->result_bw );
 }

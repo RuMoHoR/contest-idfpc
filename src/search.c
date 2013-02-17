@@ -66,11 +66,11 @@ contest_search_backward_step(
 		state->vx ^= op->A;
 		state->vy ^= op->B;
 		state->clr ^= op->C;
-//	contest_dump( "bkafter", state, op );
+//		contest_dump( "bkafter", state, op );
 		return 1;
 	} /* opcode ok */
 }
-#if 0
+//#if 0
 static
 int
 contest_search_backward_check(
@@ -81,7 +81,7 @@ contest_search_backward_check(
 
 	op = bmpread_get_opcode( bmp, state->x, state->y );
 
-	contest_dump( "ckstep", state, op );
+//	contest_dump( "ckstep", state, op );
 
 	if ( !op ) {
 		return 0;
@@ -93,11 +93,11 @@ contest_search_backward_check(
 	state->x = state->x + state->vx;
 	state->y = state->y + state->vy;
 
-	contest_dump( "ckafter", state, op );
+//	contest_dump( "ckafter", state, op );
 		return 1;
 	} /* opcode ok */
 }
-#endif
+//#endif
 
 static
 void
@@ -105,31 +105,31 @@ contest_search_backward_state(
 	struct contest_data_t * const bmp,
 	struct contest_state_t * const state )
 {
-//	struct contest_state_t	pre;
-//	struct contest_state_t	post;
+	struct contest_state_t	pre;
+	struct contest_state_t	post;
 	struct contest_state_t	start;
-	int	r;
+	int	r, c;
 	int n;
 
 	if ( !bmp ) return;
 
 	bmpread_alloc_bw( bmp );
 
-	contest_dump( "back", state, NULL );
+//	contest_dump( "back", state, NULL );
 	n = 0;
 	start = *state;
 	do {
 //		contest_dump( "--", state, NULL );
-//		pre = *state;
+		pre = *state;
 		r = contest_search_backward_step( bmp, state );
-//		post = *state;
-//		contest_search_backward_check( bmp, &post );
-		if ( !state->clr ) {
+		post = *state;
+		c = contest_search_backward_check( bmp, &post );
+		if ( !state->clr && r && c) {
 			start = *state;
 		} /* start point?*/
 //		printf("\n");
 		n++;
-	} while ( r && ( n < 100000 ) );
+	} while ( r && c && ( n < 100000 ) );
 
 	contest_dump( "zero", &start, NULL );
 

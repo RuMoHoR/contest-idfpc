@@ -82,9 +82,9 @@ contest_parse_state(
 	} while ( r && ( n < 100000 ) );
 
 	if ( n > 50 ) {
-		printf( "Steps: %d\n", n );
+//		printf( "Steps: %d\n", n );
 		state->dump = 1;
-		contest_dump( "final", state, NULL );
+//		contest_dump( "final", state, NULL );
 
 //		bmpread_save( bmp, fdir, fname );
 	}
