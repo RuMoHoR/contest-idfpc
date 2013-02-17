@@ -83,6 +83,11 @@ contest(
 	const char * const fdir );
 
 int
+contest_parse_state(
+	struct contest_data_t * const bmp,
+	struct contest_state_t * const state );
+
+int
 contest_parse_page(
 	struct contest_data_t * const bmp,
 	const unsigned int x,
@@ -98,7 +103,11 @@ contest_search_forward(
 void
 contest_search_backward(
 	struct contest_data_t * const bmp,
-	const char * const fdir );
+	const unsigned int x,
+	const unsigned int y,
+	const signed char vx,
+	const signed char vy,
+	const signed char clr );
 
 void
 draw_line(

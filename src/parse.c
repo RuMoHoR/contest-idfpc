@@ -60,6 +60,39 @@ contest_parse_step(
 }
 
 int
+contest_parse_state(
+	struct contest_data_t * const bmp,
+	struct contest_state_t * const state )
+{
+	int	r;
+	int n;
+
+	if ( !bmp ) return 0;
+
+	bmpread_alloc_bw( bmp );
+
+	n = 0;
+	do {
+//		contest_dump_start( &state );
+		r = contest_parse_step( bmp, state );
+		if ( !state->clr ) {
+			contest_dump_stop( state );
+		} /* stop dump? */
+		n++;
+	} while ( r && ( n < 100000 ) );
+
+	if ( n > 50 ) {
+		printf( "Steps: %d\n", n );
+		state->dump = 1;
+		contest_dump( "final", state, NULL );
+
+//		bmpread_save( bmp, fdir, fname );
+	}
+
+	return n;
+}
+
+int
 contest_parse_page(
 	struct contest_data_t * const bmp,
 	const unsigned int x,
@@ -68,12 +101,7 @@ contest_parse_page(
 	const signed char vy )
 {
 	struct contest_state_t	state;
-	int	r;
-	int n;
-
-	if ( !bmp ) return 0;
-
-	bmpread_alloc_bw( bmp );
+	int	ret;
 
 	state.x = x;
 	state.y = y;
@@ -82,23 +110,7 @@ contest_parse_page(
 	state.clr = 0;
 	state.dump = 0;
 
-	n = 0;
-	do {
-//		contest_dump_start( &state );
-		r = contest_parse_step( bmp, &state );
-		if ( !state.clr ) {
-			contest_dump_stop( &state );
-		} /* stop dump? */
-		n++;
-	} while ( r && ( n < 100000 ) );
+	ret = contest_parse_state( bmp, &state );
 
-	if ( n > 50 ) {
-//		printf( "Steps: %d\n", n );
-		state.dump = 1;
-		contest_dump( "final", &state, NULL );
-
-//		bmpread_save( bmp, fdir, fname );
-	}
-
-	return n;
+	return ret;
 }
