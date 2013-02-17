@@ -30,7 +30,7 @@ main(
 			fclose( fbmp );
 			if ( bmp ) {
 				if ( argc >= 3 ) {
-					contest_parse( bmp, argv[ 2 ] );
+					contest( bmp, argv[ 2 ] );
 				} /* have res dir? */
 				bmpread_free( bmp );
 			} /* read ok? */

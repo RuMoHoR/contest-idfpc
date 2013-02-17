@@ -26,6 +26,16 @@ struct contest_data_t {
 	struct contest_operand_t	*result_used;
 };
 
+struct contest_state_t {
+	unsigned int	x;
+	unsigned int	y;
+	signed char	vx;
+	signed char	vy;
+	signed char	clr;
+	int	dump;
+};
+
+
 void
 contest_error(
 	const char * const msg );
@@ -63,7 +73,41 @@ bmpread_get_opcode(
 	const unsigned int y );
 
 void
-contest_parse(
+contest_dump(
+	const char * const label,
+	const struct contest_state_t * const state,
+	const struct contest_operand_t * const op );
+
+void
+contest_dump_start(
+	struct contest_state_t * const state );
+
+void
+contest_dump_stop(
+	struct contest_state_t * const state );
+
+void
+contest(
+	struct contest_data_t * const bmp,
+	const char * const fdir );
+
+int
+contest_parse_page(
+	struct contest_data_t * const bmp,
+	const char * const fdir,
+	const char * const fname,
+	const unsigned int x,
+	const unsigned int y,
+	const signed char vx,
+	const signed char vy );
+
+void
+contest_search_forward(
+	struct contest_data_t * const bmp,
+	const char * const fdir );
+
+void
+contest_search_backward(
 	struct contest_data_t * const bmp,
 	const char * const fdir );
 

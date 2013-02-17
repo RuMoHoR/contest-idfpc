@@ -17,6 +17,9 @@ SRCLIST	= \
 	bmpread \
 	contest \
 	draw \
+	dump \
+	parse \
+	search
 
 OBJ     = $(SRCLIST:%=$(OBJDIR)/%.o)
 

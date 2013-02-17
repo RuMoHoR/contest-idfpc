@@ -63,7 +63,7 @@ draw_line(
 		x = xx0;
 		y = yy0;
 		do {  /* loop */
-			draw_pixel( bmp, pixels, x, y, color, 0x70 );
+			draw_pixel( bmp, pixels, x, y, color, 0x10 );
 			e2 = 2*err;
 			if ( e2 >= dy ) {
 				err += dy;
