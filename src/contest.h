@@ -119,4 +119,8 @@ draw_line(
 	const int yye,
 	const signed char color );
 
+void
+contest_vvvm(
+	const struct contest_data_t * const bmp );
+
 #endif

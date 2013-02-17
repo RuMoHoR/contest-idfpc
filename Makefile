@@ -19,7 +19,8 @@ SRCLIST	= \
 	draw \
 	dump \
 	parse \
-	search
+	search \
+	vvvm
 
 OBJ     = $(SRCLIST:%=$(OBJDIR)/%.o)
 
@@ -49,6 +50,7 @@ $(OBJDIR)/dump.o:	$(SRCDIR)/dump.c $(SRCDIR)/contest.h
 $(OBJDIR)/parse.o:	$(SRCDIR)/parse.c $(SRCDIR)/contest.h
 $(OBJDIR)/search.o:	$(SRCDIR)/search.c $(SRCDIR)/contest.h
 $(OBJDIR)/main.o:	$(SRCDIR)/main.c $(SRCDIR)/contest.h
+$(OBJDIR)/vvvm.o:	$(SRCDIR)/vvvm.c $(SRCDIR)/contest.h
 
 $(OBJ): | $(OBJDIR)
 $(OBJDIR):
