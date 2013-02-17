@@ -62,8 +62,6 @@ contest_parse_step(
 int
 contest_parse_page(
 	struct contest_data_t * const bmp,
-	const char * const fdir,
-	const char * const fname,
 	const unsigned int x,
 	const unsigned int y,
 	const signed char vx,
@@ -75,7 +73,6 @@ contest_parse_page(
 
 	if ( !bmp ) return 0;
 
-	printf( "Making \"%s\"\n", fname );
 	bmpread_alloc_bw( bmp );
 
 	state.x = x;
@@ -96,11 +93,11 @@ contest_parse_page(
 	} while ( r && ( n < 100000 ) );
 
 	if ( n > 50 ) {
-		printf( "Steps: %d\n", n );
+//		printf( "Steps: %d\n", n );
 		state.dump = 1;
 		contest_dump( "final", &state, NULL );
 
-		bmpread_save( bmp, fdir, fname );
+//		bmpread_save( bmp, fdir, fname );
 	}
 
 	return n;

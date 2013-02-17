@@ -45,6 +45,9 @@ LDFLAGS	= \
 $(OBJDIR)/bmpread.o:	$(SRCDIR)/bmpread.c $(SRCDIR)/contest.h
 $(OBJDIR)/contest.o:	$(SRCDIR)/contest.c $(SRCDIR)/contest.h
 $(OBJDIR)/draw.o:	$(SRCDIR)/draw.c $(SRCDIR)/contest.h
+$(OBJDIR)/dump.o:	$(SRCDIR)/dump.c $(SRCDIR)/contest.h
+$(OBJDIR)/parse.o:	$(SRCDIR)/parse.c $(SRCDIR)/contest.h
+$(OBJDIR)/search.o:	$(SRCDIR)/search.c $(SRCDIR)/contest.h
 $(OBJDIR)/main.o:	$(SRCDIR)/main.c $(SRCDIR)/contest.h
 
 $(OBJ): | $(OBJDIR)

@@ -18,8 +18,7 @@ struct contest_data_t {
 	unsigned int	width;
 	unsigned int	height;
 	unsigned int	count;
-	unsigned int	size_src;
-	unsigned int	size_res;
+	unsigned int	size;
 	struct contest_operand_t	*data;
 	struct contest_operand_t	*result_color;
 	struct contest_operand_t	*result_bw;
@@ -47,7 +46,8 @@ void
 bmpread_save(
 	const struct contest_data_t * const bmp,
 	const char * const fdir,
-	const char * const fname );
+	const char * const fname,
+	const struct contest_operand_t *result );
 
 void
 bmpread_alloc_bw(
@@ -55,14 +55,6 @@ bmpread_alloc_bw(
 
 void
 bmpread_free(
-	struct contest_data_t * const bmp );
-
-void
-bmpread_fill_bw_from_color(
-	struct contest_data_t * const bmp );
-
-void
-bmpread_fill_bw_from_used(
 	struct contest_data_t * const bmp );
 
 struct contest_operand_t*
@@ -93,8 +85,6 @@ contest(
 int
 contest_parse_page(
 	struct contest_data_t * const bmp,
-	const char * const fdir,
-	const char * const fname,
 	const unsigned int x,
 	const unsigned int y,
 	const signed char vx,

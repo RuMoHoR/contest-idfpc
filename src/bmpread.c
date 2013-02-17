@@ -98,25 +98,7 @@ bmpread_alloc_bw(
 	struct contest_data_t * const bmp )
 {
 	bmpread_free_operands( &( bmp->result_bw ) );
-	bmpread_alloc( &( bmp->result_bw ), bmp->size_res );
-}
-
-void
-bmpread_fill_bw_from_color(
-	struct contest_data_t * const bmp )
-{
-	if ( ( bmp->result_color ) && ( bmp->result_bw ) ) {
-		memcpy( bmp->result_bw, bmp->result_color, bmp->size_res );
-	} /* may copy? */
-}
-
-void
-bmpread_fill_bw_from_used(
-	struct contest_data_t * const bmp )
-{
-	if ( ( bmp->result_used ) && ( bmp->result_bw ) ) {
-		memcpy( bmp->result_bw, bmp->result_used, bmp->size_res );
-	} /* may copy? */
+	bmpread_alloc( &( bmp->result_bw ), bmp->size );
 }
 
 struct contest_data_t*
@@ -132,37 +114,30 @@ bmpread_read(
 		contest_error( "Alloc!" );
 	} else { /* malloc ok*/
 		r = fread( bmp->hdr, 1, BMPREAD_HDR_SIZE, fbmp );
-//		printf( "rd = %d\n", r );
 
 		bmp->width = 400;
 		bmp->height = 200;
 		bmp->count =
 			bmp->width *
 			bmp->height;
-		bmp->size_src =
+		bmp->size =
 			bmp->count *
-			sizeof( struct contest_operand_t );
-		bmp->size_res =
-			bmp->count *
-			DRAW_SCALE * DRAW_SCALE *
 			sizeof( struct contest_operand_t );
 
-		if ( !( bmp->size_src ) ) {
+		if ( !( bmp->size ) ) {
 			contest_error( "Limit!" );
 			bmp = NULL;
 		} else { /* have data */
-			bmp->data = malloc( bmp->size_src );
+			bmp->data = malloc( bmp->size );
 			if ( !( bmp->data ) ) {
 				contest_error( "Data alloc!" );
 				free( bmp );
 				bmp = NULL;
 			} else { /* data malloc ok*/
-				r = fread( bmp->data, 1, bmp->size_src, fbmp );
-//				printf( "rd = %d\n", r );
-
-				bmpread_alloc( &( bmp->result_color ), bmp->size_res );
-				bmpread_alloc( &( bmp->result_bw ), bmp->size_res );
-				bmpread_alloc( &( bmp->result_used ), bmp->size_res );
+				r = fread( bmp->data, 1, bmp->size, fbmp );
+				bmpread_alloc( &( bmp->result_color ), bmp->size );
+				bmpread_alloc( &( bmp->result_bw ), bmp->size );
+				bmpread_alloc( &( bmp->result_used ), bmp->size );
 			} /* data alloc ok? */
 		} /* have data? */
 	} /* malloc ok? */
@@ -174,7 +149,8 @@ void
 bmpread_save(
 	const struct contest_data_t * const bmp,
 	const char * const fdir,
-	const char * const fname )
+	const char * const fname,
+	const struct contest_operand_t *result )
 {
 	char	fpath[ PATH_MAX + 1 ];
 	FILE	*fres;
@@ -186,7 +162,6 @@ bmpread_save(
 		"./%s/%s.bmp",
 		fdir,
 		fname );
-
 
 	if ( !bmp ) {
 	} else { /* malloc ok*/
@@ -201,7 +176,7 @@ bmpread_save(
 			if ( !( bmp->result_bw ) ) {
 				contest_error( "No result!" );
 			} else { /* res malloc ok*/
-				r = fwrite( bmp->result_bw, 1, bmp->size_res, fres );
+				r = fwrite( result, 1, bmp->size, fres );
 //				printf( "wr = %d\n", r );
 			} /* have res? */
 		} /* res open ok?*/
